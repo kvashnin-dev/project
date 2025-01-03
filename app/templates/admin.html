@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Admin Panel</h1>
+<h2 class="mt-4">Flowers</h2>
+<div class="row">
+    {% for flower in flowers %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ flower.name }}</h5>
+                <p class="card-text">{{ flower.description }}</p>
+                <p class="card-text text-success">Price: ${{ flower.price }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<form action="/admin/add_flower" method="POST" class="mt-4">
+    <h3>Add Flower</h3>
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" id="name">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" name="description" class="form-control" id="description">
+    </div>
+    <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="number" name="price" class="form-control" id="price">
+    </div>
+    <div class="mb-3">
+        <label for="category_id" class="form-label">Category ID</label>
+        <input type="number" name="category_id" class="form-control" id="category_id">
+    </div>
+    <button type="submit" class="btn btn-primary">Add Flower</button>
+</form>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Flower Store{% endblock %}
+
+{% block content %}
+<h1 class="text-center text-primary">Welcome to Flower Store</h1>
+<div class="row">
+    {% for flower in flowers %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ flower.name }}</h5>
+                <p class="card-text">{{ flower.description }}</p>
+                <p class="card-text text-success">Price: ${{ flower.price }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
