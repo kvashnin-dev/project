@@ -16,10 +16,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    {% if request.cookies.get('access_token_cookie') %}
+                    {% if token_valid %}
                         <li class="nav-item">
                             <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline">
                                 <button class="btn btn-link nav-link" type="submit">Logout</button>
+                            </form>
+                            <form action="{{ url_for('main.admin') }}" method="GET" class="d-inline">
+                                <button class="btn btn-link nav-link" type="submit">Admin</button>
                             </form>
                         </li>
                     {% else %}
@@ -27,7 +30,7 @@
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                         </li>
                     {% endif %}
-                </ul>
+                </ul>                           
             </div>
         </div>
     </nav>

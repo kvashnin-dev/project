@@ -10,4 +10,4 @@ COPY . .
 # Устанавливаем PYTHONPATH
 ENV PYTHONPATH=/app
 
-CMD ["sh", "-c", "if [ ! -d 'migrations' ]; then flask db init; fi && flask db migrate -m 'Auto migration' && flask db upgrade && python create_admin.py && python app/main.py"]
+CMD ["sh", "-c", "if [ ! -d 'migrations' ]; then flask db init; fi && flask db migrate -m 'Auto migration' && flask db upgrade && python create_admin.py && python app/run.py"]

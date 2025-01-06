@@ -12,6 +12,11 @@
                 <h5 class="card-title">{{ flower.name }}</h5>
                 <p class="card-text">{{ flower.description }}</p>
                 <p class="card-text text-success">Price: ${{ flower.price }}</p>
+                <div class="card-images">
+                    {% for image in flower.images %}
+                    <img src="{{ image.url }}" alt="{{ flower.name }}" class="img-fluid mb-2" style="max-height: 150px;">
+                    {% endfor %}
+                </div>                
             </div>
         </div>
     </div>
