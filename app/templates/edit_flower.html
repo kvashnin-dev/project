@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Flower{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Edit Flower</h1>
+<form action="{{ url_for('main.edit_flower', flower_id=flower.id) }}" method="POST" enctype="multipart/form-data" class="mt-4">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" id="name" value="{{ flower.name }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea name="description" class="form-control" id="description" required>{{ flower.description }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="number" name="price" class="form-control" id="price" value="{{ flower.price }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="category_id" class="form-label">Category</label>
+        <select name="category_id" id="category_id" class="form-control" required>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if flower.category_id == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <h3>Existing Images</h3>
+        <div class="row">
+            {% for image in flower.images %}
+            <div class="col-md-4">
+                <img src="{{ image.url }}" alt="{{ flower.name }}" class="img-fluid mb-2" style="max-height: 150px;">
+                <div>
+                    <input type="checkbox" name="delete_images" value="{{ image.id }}"> Delete
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="images" class="form-label">Upload New Images</label>
+        <input type="file" name="images" class="form-control" id="images" multiple>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+{% endblock %}

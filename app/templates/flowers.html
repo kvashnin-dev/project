@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Flowers{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Manage Flowers</h1>
+
+<!-- Button to open the modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFlowerModal">
+    Add New Flower
+  </button>
+
+<h2 class="mt-4">Flower List</h2>
+<div class="row">
+    {% for flower in flowers %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ flower.name }}</h5>
+                <p class="card-text">{{ flower.description }}</p>
+                <p class="card-text text-success">Price: ${{ flower.price }}</p>
+                <p class="card-text text-muted">Category: {{ flower.category.name }}</p> <!-- Добавлено имя категории -->
+                <div class="card-images">
+                    {% for image in flower.images %}
+                    <img src="{{ image.url }}" alt="{{ flower.name }}" class="img-fluid mb-2" style="max-height: 150px;">
+                    {% endfor %}
+                </div>
+                <form action="{{ url_for('main.delete_flower', flower_id=flower.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                <a href="{{ url_for('main.edit_flower', flower_id=flower.id) }}" class="btn btn-warning btn-sm">Edit</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for adding a flower -->
+<div class="modal fade" id="addFlowerModal" tabindex="-1" aria-labelledby="addFlowerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFlowerModalLabel">Add New Flower</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="{{ url_for('main.add_flower') }}" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" id="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" name="description" class="form-control" id="description" required>
+          </div>
+          <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" name="price" class="form-control" id="price" required>
+          </div>
+          <div class="mb-3">
+            <label for="category_id" class="form-label">Category</label>
+            <select name="category_id" id="category_id" class="form-control" required>
+              {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="images" class="form-label">Upload Images</label>
+            <input type="file" name="images" class="form-control" id="images" multiple>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Flower</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

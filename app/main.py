@@ -17,6 +17,93 @@ def index():
     flowers = Flower.query.all()
     return render_template('index.html', flowers=flowers)
 
+@main_bp.route('/admin')
+@jwt_required()
+def admin():
+    claims = get_jwt()
+    if not claims.get("is_admin"):
+        return redirect(url_for('auth.login'))
+
+    return render_template('admin.html')
+
+@main_bp.route('/admin/flowers')
+@jwt_required()
+def manage_flowers():
+    claims = get_jwt()
+    if not claims.get("is_admin"):
+        return redirect(url_for('auth.login'))
+
+    flowers = Flower.query.all()
+    categories = Category.query.all()
+    return render_template('flowers.html', flowers=flowers, categories=categories)
+
+@main_bp.route('/admin/flowers/delete/<int:flower_id>', methods=['POST'])
+@jwt_required()
+def delete_flower(flower_id):
+    claims = get_jwt()
+    if not claims.get("is_admin"):
+        return redirect(url_for('auth.login'))
+
+    flower = Flower.query.get(flower_id)
+    if flower:
+        # Удаляем связанные изображения
+        for image in flower.images:
+            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], os.path.basename(image.url))
+            if os.path.exists(image_path):
+                os.remove(image_path)  # Удаляем файл с диска
+            db.session.delete(image)  # Удаляем запись из базы данных
+
+        # Удаляем сам цветок
+        db.session.delete(flower)
+        db.session.commit()
+
+    return redirect(url_for('main.manage_flowers'))
+
+@main_bp.route('/admin/flowers/edit/<int:flower_id>', methods=['GET', 'POST'])
+@jwt_required()
+def edit_flower(flower_id):
+    claims = get_jwt()
+    if not claims.get("is_admin"):
+        return redirect(url_for('auth.login'))
+
+    flower = Flower.query.get(flower_id)
+    if not flower:
+        return redirect(url_for('main.manage_flowers'))
+
+    if request.method == 'POST':
+        # Обновляем данные цветка
+        flower.name = request.form.get('name', flower.name)
+        flower.description = request.form.get('description', flower.description)
+        flower.price = request.form.get('price', flower.price)
+        flower.category_id = request.form.get('category_id', flower.category_id)
+
+        # Удаление изображений
+        images_to_delete = request.form.getlist('delete_images')  # Получаем ID изображений для удаления
+        for image_id in images_to_delete:
+            image = Image.query.get(image_id)
+            if image:
+                image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], os.path.basename(image.url))
+                if os.path.exists(image_path):
+                    os.remove(image_path)  # Удаляем файл с диска
+                db.session.delete(image)  # Удаляем запись из базы данных
+
+        # Добавление новых изображений
+        new_images = request.files.getlist('images')
+        for image in new_images:
+            if image and allowed_file(image.filename):
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+
+                new_image = Image(url=f'/static/uploads/{filename}', flower_id=flower.id)
+                db.session.add(new_image)
+
+        db.session.commit()
+        return redirect(url_for('main.manage_flowers'))
+
+    categories = Category.query.all()
+    return render_template('edit_flower.html', flower=flower, categories=categories)
+
 @main_bp.route('/admin/add_flower', methods=['POST'])
 @jwt_required()
 def add_flower():
@@ -49,19 +136,7 @@ def add_flower():
             db.session.add(new_image)
 
     db.session.commit()
-    return redirect(url_for('main.admin'))
-
-# Передаем категории в шаблон
-@main_bp.route('/admin')
-@jwt_required()
-def admin():
-    claims = get_jwt()
-    if not claims.get("is_admin"):
-        return redirect(url_for('auth.login'))
-
-    flowers = Flower.query.all()
-    categories = Category.query.all()  # Получаем категории для выбора
-    return render_template('admin.html', flowers=flowers, categories=categories)
+    return redirect(url_for('main.manage_flowers'))
 
 @main_bp.route('/admin/categories', methods=['GET', 'POST'])
 @jwt_required()
